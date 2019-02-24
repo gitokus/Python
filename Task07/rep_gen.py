@@ -111,7 +111,7 @@ class ReportGenerator(QMainWindow):
             cells[1].text = aLogName       # LogName
             cells[2].text = aIndex         # Index
             cells[3].text = aSw            # Orginal SW
-            cells[4].text = 'Available'           # Availability
+            cells[4].text = 'Available'    # Availability
 
         for i in range(2,8):
             doc.tables[2].cell(i,1).text = '/' + str(len(list(self.info)))
