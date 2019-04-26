@@ -1,0 +1,26 @@
+# Distribiution selector config file
+# line starting with '#' is a comment
+
+header= LogName,Status,Distance,Duration,AvgSpeed,MinSpeed,MaxSpeed,AvgYrate,MinYrate,MaxYrate,ChngLane,AvailLRE,AvailRRE,AvailLL,AvailRL,SolidLL,SolidRL,DashLL,DashRL,WhiteLL,WhiteRL,YellLL,YellRL,AmbigL,AmbigR,ConstArea,SFClasL,SFClasR,TSRNum,CarNum,MclNum,TrkNum,PedNum,AniNum,BclNum,Day,Dusk,Night,AmbLght,Highway,City,Tunnel,HLNum,TLNum,TrkCLNum,DarkOncL,blurSL,fogSL,smearSL,selfGSL,spotRSL,frozSL,partBSL,fullBSL,Frames,ME_API,ME_SW,VFP_ver,simpFrDrop,cntError,cntFault,sFrDrop,mFrDrop,conFrDrop,decFrDrop
+
+# Distribiution length: either in km, logs or minutes:
+lenMode= km
+len= 5
+
+# Day time distribiution: fraction for each category, should sum up to 1:
+dayTimeCondition= Off
+dayTimeDay= 0.6
+dayTimeDusk= 0.2
+dayTimeNight= 0.2
+
+# Road type distribiution: fraction for each category, should sum up to 1:
+roadTypeCondition= On
+roadTypeCity= 0.4
+roadTypeHighway= 0.4
+roadTypeOther= 0.2
+
+# Custom conditions
+# Format: cc_KeyName= valMin, includeMin, valMax, includeMax
+# KeyName must be in header
+# Ex. cc_AvgSpeed= 50, 100 will return logs with avg speed in <50,100>
+cc_AvgSpeed= 80, 100

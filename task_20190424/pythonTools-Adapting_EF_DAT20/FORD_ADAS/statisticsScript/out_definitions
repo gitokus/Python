@@ -1,0 +1,45 @@
+[DEFAULT]
+_status =
+_filter_name =
+_match_key =
+_index =
+
+_from_dat =
+dat.general.weather = general.infoDict.weather
+dat.general.timeOfDay = general.infoDict.timeOfDay
+dat.general.roadType = general.infoDict.roadType
+dat.general.complexity = general.infoDict.complexity
+dat.general.laneChange = general.infoDict.laneChange
+dat.general.camObscured = general.infoDict.camObscured
+dat.general.camBlocked = general.infoDict.camBlocked
+dat.general.ca = general.infoDict.ca
+dat.general.lightsVisible = general.infoDict.lightsVisible
+dat.general.roadSeparator = general.infoDict.roadSeparator
+dat.general.leftSide = general.infoDict.leftSide
+dat.general.tunnel = general.infoDict.tunnel
+
+_from_mat =
+mat.dayTime = mudp.vis.vision_ahbc_info.ahbcAvailable
+
+[AFL]
+
+[LKS]
+
+[TSR]
+
+[OBJ]
+dat.object.id = obj.objID
+dat.object.cords = obj.cords
+dat.object.type = obj.infoDict.type
+dat.object.height = obj.infoDict.height
+dat.object.distance = obj.infoDict.distance
+dat.object.direction = obj.infoDict.dir
+dat.object.visibility = obj.infoDict.visibility
+dat.object.status = obj.infoDict.status
+dat.object.relevancy = obj.infoDict.relevancy
+dat.object.done = obj.infoDict.done
+
+mat.mat_id = mudp.vis.vision_obstacles_info.visObs.uniqueID
+mat.col_id =
+mat.cipo = mudp.vis.vision_function_info.visOnlyVehCIPO
+mat.visObs = mudp.vis.vision_obstacles_info.visObs

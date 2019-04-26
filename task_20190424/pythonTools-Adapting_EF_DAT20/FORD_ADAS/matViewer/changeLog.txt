@@ -1,0 +1,16 @@
+--------------------------------------------------------------------------------------
+matViewer version 1.2 release:
+    Release date 13.07.2017
+
+changes:
+    -additional sorting for obj fields (to complate loadmat sorting for matViewer)
+--------------------------------------------------------------------------------------
+matViewer version 1.1 release:
+    Release date 6.06.2017
+
+changes:
+    -drag and drop option for mat files
+    -load whole mat/mudp only checkBox added
+--------------------------------------------------------------------------------------
+matViewer version 1.0 release:
+	Base release 13.02.2017

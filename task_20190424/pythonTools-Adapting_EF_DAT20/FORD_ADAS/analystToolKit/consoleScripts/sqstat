@@ -1,0 +1,8 @@
+#!/bin/bash
+module load slurm
+echo "Total Pending: $(squeue -rht PD | wc -l)"
+echo "Total Running: $(squeue -rht R  | wc -l)"
+echo "----------"
+echo "Mine  Pending: $(squeue -rht PD -u $(id -un) | wc -l)"
+echo "Mine  Running: $(squeue -rht R -u $(id -un) | wc -l)"
+

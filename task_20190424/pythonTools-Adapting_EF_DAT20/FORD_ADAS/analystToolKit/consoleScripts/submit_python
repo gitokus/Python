@@ -1,0 +1,143 @@
+#!/bin/bash
+#Author: Marcin Stolarek (marcin.stolarek@delphi.com)
+#CoAuthor: Daniel Dworak (daniel.dworak@delphi.com)
+#
+
+# check for proper usage
+if [ $# -lt 3 ]
+then
+	echo "Wrong number of arguments, should be used like:"
+	echo "$0 /path/to/program /path/to/list_of_logs /path/to/outputdir port [optional args]"
+	exit
+fi
+
+PYTHON_LIBS=/mnt/usinkok/users/bjzpp8/pythonTools/FORD_ADAS
+
+# read all parameters
+PROCESSOR=$1
+LISTOFFILES=$2
+OUTPUTDIR=$3
+PORT=$4
+shift
+shift
+shift
+OTHERARGS=$@
+
+# make the paths absolute
+if [ ${PROCESSOR:0:1} != '/' ]
+then
+	PROCESSOR=$(pwd)/$PROCESSOR
+fi
+
+if [ ${LISTOFFILES:0:1} != '/' ]
+then
+        LISTOFFILES=$(pwd)/$LISTOFFILES
+fi
+
+if [ ${OUTPUTDIR:0:1} != '/' ]
+then
+        OUTPUTDIR=$(pwd)/$OUTPUTDIR
+fi
+
+# check the parameters for consistency
+if [ ! -x  $PROCESSOR ]
+then
+	echo "Specified program $PROCESSOR doesn't exist, or is not executable"
+	exit 1
+fi
+
+if [ ! -f $LISTOFFILES ]
+then
+	echo "Specified list of logs file: $LISTOFFILES doesn't exist"
+	exit 1
+else
+	if [[ $( cat $LISTOFFILES | wc -l  ) -eq 0 ]]
+	then
+		echo "List of logs:$LISTOFFILES is empty"
+		exit 1
+	fi
+fi
+
+if [ ! -d $OUTPUTDIR/jobout_$(date +%d-%m-%y) ]
+then
+	echo "Directory $OUTPUTDIR doesn't exist, creating one"
+	mkdir -p $OUTPUTDIR/jobout_$(date +%d-%m-%y)
+
+elif [ $( ls $OUTPUTDIR | wc -l )  -ne 1 ]
+then
+	echo -n "Directory $OUTPUTDIR is not empty, are you sure you want to write there (y/n)?"
+	read ans
+	if [ "x$ans" == "xy" ]
+	then
+		echo "Using non empty directory $OUTPUTDIR"
+	else
+		echo "Breaking on user request"
+		exit 1
+	fi
+fi
+
+# prepare job for SLURM
+
+MAT_PER_JOB=100
+JOBFILE=$(mktemp)
+echo "Temporary job file is:$JOBFILE"
+
+cat << END > $JOBFILE
+#!/bin/bash -l
+#SBATCH -t 30:00
+#SBATCH -J pyt-$(basename $LISTOFFILES)
+#SBATCH -o $OUTPUTDIR/jobout_$(date +%d-%m-%y)/%A_%a.out
+#SBATCH --licenses=lustre
+
+hostname
+
+
+module load openblas/dynamic/0.2.14
+module load python/3.5.0
+
+export PYTHONPATH=${PYTHONPATH}:$PYTHON_LIBS
+STARTLINE=\$[ ( \${SLURM_ARRAY_TASK_ID} - 1) * $MAT_PER_JOB + 1 ]
+STOPLINE=\$[ ( \${SLURM_ARRAY_TASK_ID} ) * $MAT_PER_JOB ]
+
+echo "STARTLINE=${STARTLINE}, STOPLINE=${STOPLINE}"
+
+TEMPDIR=\$(mktemp -d -p /dev/shm/)
+mkdir \${TEMPDIR}/OUT
+MYLIST=\$(mktemp -p \$TEMPDIR)
+trap 'rm -rf \$TEMPDIR' SIGTERM
+#mkdir -p \$TEMPDIR/jobout_\$(date +%d-%m-%y)
+#TEMPDIR=$OUTPUTDIR
+#dd if=\$FILE_TO_PROCESS of=\${TEMPDIR}/fileToProcess bs=1M
+
+awk  "NR>=\${STARTLINE} && NR<=\${STOPLINE}" $LISTOFFILES > \$MYLIST
+echo "MYLIST is, $\MYLIST and contains:"
+cat \$MYLIST
+echo
+
+echo python $PROCESSOR \${MYLIST} \$PORT -o \${TEMPDIR}/OUT $OTHERARGS
+python $PROCESSOR \${MYLIST} \$PORT -o \${TEMPDIR}/OUT $OTHERARGS
+
+for file in \$( find \${TEMPDIR}/OUT -type f )
+do
+    BASENAME=\$(basename \$file)
+    DIRNAME=\$((dirname \$file)|cut -d'/' -f6-)
+	dd if=\$file of=$OUTPUTDIR/\$DIRNAME/\$BASENAME bs=1M oflag=append conv=notrunc
+done
+
+END
+
+# run the SLURM scheduler
+echo "Loading slurm module"
+module load slurm
+module load openblas/dynamic/0.2.14
+module load python/3.5.0
+
+echo -n "Counting logs..."
+NUMBEROFLOGS=$(cat $LISTOFFILES | wc -l )
+echo "$NUMBEROFLOGS to process"
+NUMBEROFJOBS=$[ $NUMBEROFLOGS / $MAT_PER_JOB + 1 ]
+echo "MAT_PER_JOB=$MAT_PER_JOB, jobs to submit: $NUMBEROFJOBS"
+
+echo "Submiting HPC job array: $JOBFILE"
+sbatch -a 1-$NUMBEROFJOBS $JOBFILE
+python $PYTHON_LIBS/analystToolKit/lib/UDP.py $OUTPUTDIR $PORT

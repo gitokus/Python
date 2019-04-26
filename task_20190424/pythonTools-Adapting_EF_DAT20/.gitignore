@@ -1,0 +1,12 @@
+#ignore thumbnails created by windows
+Thumbs.db
+#Ignore files
+*.pyc
+
+*.zip
+*.mat
+*.dat
+
+**/.idea/*
+**/__pycatch__
+*.exe

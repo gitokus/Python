@@ -1,0 +1,5 @@
+path,min,max,min_change_rate,max_change_rate
+mudp.vis.vision_traffic_sign_info.trafficSigns.signType,50,100,0,10
+mudp.vis.vision_traffic_sign_info.trafficSigns.signConfidence,1,100,,
+mudp.vis.vision_traffic_sign_info.trafficSigns.signRelevantDecision,0,5,,
+mudp.vis.vision_traffic_sign_info.trafficSigns.signLongPosition,0,100,,
